@@ -4,6 +4,7 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
+	config "github.com/spf13/viper"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -21,27 +22,27 @@ func terminateIfError(err error) {
 }
 
 func getHttp(uri string) string {
-	resp, err := http.Get(uri)
-	defer resp.Body.Close()
+	r, err := http.Get(uri)
 	terminateIfError(err)
+	defer r.Body.Close()
 
-	contents, err := ioutil.ReadAll(resp.Body)
+	contents, err := ioutil.ReadAll(r.Body)
 	terminateIfError(err)
 
 	return string(contents)
 }
 
-func newUUID() (string, error) {
+func newUUID() string {
 	uuid := make([]byte, 16)
 	n, err := io.ReadFull(rand.Reader, uuid)
 	if n != len(uuid) || err != nil {
-		return "", err
+		return ""
 	}
 	// variant bits; see section 4.1.1
 	uuid[8] = uuid[8]&^0xc0 | 0x80
 	// version 4 (pseudo-random); see section 4.1.3
 	uuid[6] = uuid[6]&^0xf0 | 0x40
-	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:]), nil
+	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:])
 }
 
 func getIndexInSlice(slice []string, text string) int {
@@ -54,10 +55,9 @@ func getIndexInSlice(slice []string, text string) int {
 }
 
 func getPreviousRecord(apiKey string, dnsEntry string) []string {
-	host, _ := os.Hostname()
-	uuid, _ := newUUID()
+	hostname, _ := os.Hostname()
 
-	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + uuid + "&cmd=dns-list_records&ps=" + host
+	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + newUUID() + "&cmd=dns-list_records&ps=" + hostname
 	records := strings.Fields(getHttp(uri))
 	index := getIndexInSlice(records, dnsEntry)
 
@@ -70,32 +70,35 @@ func getPreviousRecord(apiKey string, dnsEntry string) []string {
 }
 
 func removeDns(apiKey string, previousRecord []string) string {
-	host, _ := os.Hostname()
-	uuid, _ := newUUID()
+	hostname, _ := os.Hostname()
 
-	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + uuid + "&cmd=dns-remove_record&ps=" + host + "&record=" + previousRecord[2] + "&type=" + previousRecord[3] + "&value=" + previousRecord[4] + "&comment=" + previousRecord[5]
+	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + newUUID() + "&cmd=dns-remove_record&ps=" + hostname + "&record=" + previousRecord[2] + "&type=" + previousRecord[3] + "&value=" + previousRecord[4] + "&comment=" + previousRecord[5]
 	response := strings.Fields(getHttp(uri))
 
 	return response[0]
 }
 
 func addDns(apiKey string, dnsName string, currentIp string) string {
-	host, _ := os.Hostname()
-	uuid, _ := newUUID()
-	currTime := time.Now().String()
+	hostname, _ := os.Hostname()
 
-	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + uuid + "&cmd=dns-add_record&ps=" + host + "&record=" + dnsName + "&type=A&value=" + currentIp + "&comment=" + currTime
+	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + newUUID() + "&cmd=dns-add_record&ps=" + hostname + "&record=" + dnsName + "&type=A&value=" + currentIp + "&comment=" + time.Now().String()
 	response := strings.Fields(getHttp(uri))
 
 	return response[0]
 }
 
 //Runtime
+func init() {
+	config.SetConfigName("config")
+	config.AddConfigPath(".\\")
+	config.ReadInConfig()
+}
+
 func main() {
 	//Application Variables
-	apiKey := "YOUR_KEY_GOES_HERE"
-	dnsName := "sub.domain.com"
-	currentIp := getHttp("http://domain.com/get_myip.php")
+	apiKey := config.GetString("APIKey")
+	dnsName := config.GetString("DNSName")
+	currentIp := getHttp(config.GetString("IPLookupUri"))
 	previousRecord := getPreviousRecord(apiKey, dnsName)
 
 	if currentIp != previousRecord[4] {

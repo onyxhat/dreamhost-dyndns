@@ -1,0 +1,5 @@
+{
+    "APIKey": "SECRETAPIKEY",
+    "DNSName": "home.domain.com",
+    "IPLookupUri": "http://dyndns.domain.com/index.php"
+}
