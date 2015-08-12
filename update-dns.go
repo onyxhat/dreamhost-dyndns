@@ -35,20 +35,19 @@ func main() {
 }
 
 //Functions
-func terminateIfError(err error) {
+func getHttp(uri string) string {
+	r, err := http.Get(uri)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-}
-
-func getHttp(uri string) string {
-	r, err := http.Get(uri)
-	terminateIfError(err)
 	defer r.Body.Close()
 
 	contents, err := ioutil.ReadAll(r.Body)
-	terminateIfError(err)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 
 	return string(contents)
 }
