@@ -10,8 +10,29 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 )
+
+//Runtime
+func init() {
+	config.SetConfigName("config")
+	config.AddConfigPath(".\\")
+	config.ReadInConfig()
+}
+
+func main() {
+	apiKey := config.GetString("APIKey")
+	dnsName := config.GetString("DNSName")
+	currentIp := getHttp(config.GetString("IPLookupUri"))
+	previousRecord := getPreviousRecord(apiKey, dnsName)
+
+	if currentIp == previousRecord[4] {
+		fmt.Println("DNS Unchanged...")
+	} else {
+		fmt.Println("Updating DNS...")
+		removeDns(apiKey, previousRecord)
+		addDns(apiKey, dnsName, currentIp)
+	}
+}
 
 //Functions
 func terminateIfError(err error) {
@@ -69,43 +90,20 @@ func getPreviousRecord(apiKey string, dnsEntry string) []string {
 	return records[index-2 : index+6]
 }
 
-func removeDns(apiKey string, previousRecord []string) string {
+func removeDns(apiKey string, previousRecord []string) []string {
 	hostname, _ := os.Hostname()
 
-	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + newUUID() + "&cmd=dns-remove_record&ps=" + hostname + "&record=" + previousRecord[2] + "&type=" + previousRecord[3] + "&value=" + previousRecord[4] + "&comment=" + previousRecord[5]
+	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + newUUID() + "&cmd=dns-remove_record&ps=" + hostname + "&record=" + previousRecord[2] + "&type=" + previousRecord[3] + "&value=" + previousRecord[4]
 	response := strings.Fields(getHttp(uri))
 
-	return response[0]
+	return response
 }
 
-func addDns(apiKey string, dnsName string, currentIp string) string {
+func addDns(apiKey string, dnsName string, currentIp string) []string {
 	hostname, _ := os.Hostname()
 
-	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + newUUID() + "&cmd=dns-add_record&ps=" + hostname + "&record=" + dnsName + "&type=A&value=" + currentIp + "&comment=" + time.Now().String()
+	uri := "https://api.dreamhost.com/?key=" + apiKey + "&unique_id=" + newUUID() + "&cmd=dns-add_record&ps=" + hostname + "&record=" + dnsName + "&type=A&value=" + currentIp
 	response := strings.Fields(getHttp(uri))
 
-	return response[0]
-}
-
-//Runtime
-func init() {
-	config.SetConfigName("config")
-	config.AddConfigPath(".\\")
-	config.ReadInConfig()
-}
-
-func main() {
-	//Application Variables
-	apiKey := config.GetString("APIKey")
-	dnsName := config.GetString("DNSName")
-	currentIp := getHttp(config.GetString("IPLookupUri"))
-	previousRecord := getPreviousRecord(apiKey, dnsName)
-
-	if currentIp != previousRecord[4] {
-		fmt.Println("Updating DNS...")
-		removeDns(apiKey, previousRecord)
-		addDns(apiKey, dnsName, currentIp)
-	} else {
-		fmt.Println("DNS Unchanged...")
-	}
+	return response
 }
