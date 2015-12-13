@@ -9,7 +9,7 @@ $BuildOpts = @{
 }
 
 Push-Location $MyPath
-if (!(Test-Path $MyPath\bin)) { New-Item -Path $MyPath\bin -ItemType Directory }
+if (!(Test-Path $MyPath\bin)) { New-Item -Path $MyPath\bin -ItemType Directory | Out-Null }
 
 ForEach ($OS in $BuildOpts.GetEnumerator()) {
     ForEach ($Arch in $OS.Value) {
@@ -20,7 +20,7 @@ ForEach ($OS in $BuildOpts.GetEnumerator()) {
 
         Try {
             Write-Host "Building: $env:GOOS ($env:GOARCH)"
-            & cmd /C go build -o "$MyPath\bin\$MyProject-$env:GOOS-$env:GOARCH$Ext"
+            & go build -o "$MyPath\bin\$MyProject-$env:GOOS-$env:GOARCH$Ext"
         }
 
         Catch {
