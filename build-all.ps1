@@ -12,6 +12,8 @@ $BuildOpts = @{
 
 Push-Location $MyPath
 
+& go get .
+
 ForEach ($OS in $BuildOpts.GetEnumerator()) {
     ForEach ($Arch in $OS.Value) {
         $env:GOOS = $OS.Key
