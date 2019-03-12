@@ -23,7 +23,7 @@ ForEach ($OS in $BuildOpts.GetEnumerator()) {
 
         Try {
             Write-Host "Building: $env:GOOS ($env:GOARCH)"
-            & go build -o "$MyPath\bin\$MyProject-$env:GOOS-$env:GOARCH$Ext"
+            & go build -ldflags="-s -w" -o "$MyPath\bin\$MyProject-$env:GOOS-$env:GOARCH$Ext"
         }
 
         Catch {
