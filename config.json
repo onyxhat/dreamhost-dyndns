@@ -1,5 +1,5 @@
 {
     "APIKey": "YOURAPIKEY",
-    "DNSName": "myhost.domain.com",
+    "HostFQDN": "myhost.domain.com",
     "CheckInterval": 3600
 }

@@ -30,18 +30,10 @@ func (p *program) Start(s service.Service) error {
 
 func (p *program) run() {
 	apiKey := config.GetString("APIKey")
-	dnsName := config.GetString("DNSName")
-	currentIP := getCurrentIP()
-	previousRecord := getDNSRecord(apiKey, dnsName)
+	hostFQDN := config.GetString("HostFQDN")
 
 	for {
-		if currentIP == previousRecord {
-			log.Info("DNS Unchanged")
-		} else {
-			log.Info("Updating DNS")
-			//removeDNS(apiKey, previousRecord)
-			//addDNS(apiKey, dnsName, currentIP)
-		}
+		updateDNS(apiKey, hostFQDN)
 
 		time.Sleep(config.GetDuration("CheckInterval") * time.Second)
 	}
