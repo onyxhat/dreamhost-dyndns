@@ -1,5 +1,5 @@
 {
     "APIKey": "YOURAPIKEY",
     "DNSName": "myhost.domain.com",
-    "IPLookupUri": "http://domain.com/gey-myip.php"
+    "CheckInterval": 3600
 }
