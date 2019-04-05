@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -16,13 +15,16 @@ func (p *program) Start(s service.Service) error {
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
 		log.Error(err)
-		os.Exit(1)
+	} else {
+		config.SetConfigName("config")
+		config.AddConfigPath(folderPath)
+		config.ReadInConfig()
 	}
 
-	config.AddConfigPath(folderPath)
-	config.SetConfigName("config")
+	config.SetEnvPrefix("dh")
+	config.AutomaticEnv()
+
 	config.SetDefault("CheckInterval", 3600)
-	config.ReadInConfig()
 
 	go p.run()
 	return nil
