@@ -23,4 +23,4 @@ WORKDIR /app
 
 COPY --from=upx /dreamhost-dyndns ./
 
-ENTRYPOINT [ "dreamhost-dyndns" ]
+ENTRYPOINT [ "/app/dreamhost-dyndns" ]
