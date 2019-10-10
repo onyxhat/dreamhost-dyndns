@@ -3,6 +3,8 @@ FROM golang:alpine AS build
 
 WORKDIR /go/src/github.com/onyxhat/dreamhost-dyndns
 
+RUN apk update && apk add --no-cache git
+
 COPY . .
 
 RUN go get . && \
