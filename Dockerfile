@@ -5,7 +5,8 @@ WORKDIR /go/src/github.com/onyxhat/dreamhost-dyndns
 
 COPY . .
 
-RUN go build -ldflags="-s -w" -o "./bin/dreamhost-dyndns"
+RUN go get . && \
+    go build -ldflags="-s -w" -o "./bin/dreamhost-dyndns"
 
 #Compress the app
 FROM gruebel/upx:latest as upx
