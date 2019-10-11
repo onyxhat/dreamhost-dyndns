@@ -17,7 +17,7 @@ COPY --from=build /go/src/github.com/onyxhat/dreamhost-dyndns/bin/* /dreamhost-d
 RUN upx --best --lzma -o /dreamhost-dyndns /dreamhost-dyndns.org
 
 # Store the app
-FROM scratch
+FROM alpine:latest
 
 WORKDIR /app
 
