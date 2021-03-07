@@ -33,7 +33,7 @@ jobs:
       shell: pwsh
 
     - name: Upload Artifact(s)
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+      if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
