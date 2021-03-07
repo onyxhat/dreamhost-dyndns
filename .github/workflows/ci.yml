@@ -1,0 +1,84 @@
+name: Build Go
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    - uses: FranzDiebold/github-env-vars-action@v2.1.0
+    
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+
+    - name: Build
+      run: go build -v ./...
+
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    
+    steps:
+    - uses: FranzDiebold/github-env-vars-action@v2.1.0
+
+    - name: Get Previous Tag
+      id: previous-tag
+      uses: WyriHaximus/github-action-get-previous-tag@1.0.0
+      continue-on-error: true
+
+    - name: Catch Tag
+      id: catch-tag
+      run: |
+        if ($env:FAILED -eq $true) {
+          Write-Host "Unable to find existing tags: Setting initial to [v0.0.0]"
+          return "::set-output name=tag::v0.0.0"
+        } else {
+          Write-Host "Existing tag found: using [${env:VERSION}]"
+          return "::set-output name=tag::${env:VERSION}"
+        }
+      shell: pwsh
+      env:
+        FAILED: steps.previous-tag.outcome == failure()
+        VERSION: ${{ steps.previous-tag.outputs.tag }}
+
+    - name: Next SemVer
+      id: next-ver
+      uses: WyriHaximus/github-action-next-semvers@v1.0
+      with:
+        version: ${{ steps.catch-tag.outputs.tag }}
+
+    - name: Select SemVer
+      id: select-ver
+      run: |
+        if ($env:IS_MAJOR -eq $true) {
+          Write-Host "Bump MAJOR octet: [${env:V_MAJOR}]"
+          $output = "::set-output name=tag::${env:V_MAJOR}"
+        } elseif ($env:IS_MINOR -eq $true) {
+          Write-Host "Bump MINOR octet: [${env:V_MINOR}]"
+          $output = "::set-output name=tag::${env:V_MINOR}"
+        } else {
+          Write-Host "Bump PATCH octet: [${env:V_PATCH}]"
+          $output = "::set-output name=tag::${env:V_PATCH}"
+        }
+        
+        return $output
+      shell: pwsh
+      env:
+        IS_MAJOR: ${{ contains(toJson(github.event.commits), 'bump-major') }} #CUSTOMIZE COMMIT MESSAGE TRIGGER HERE
+        IS_MINOR: ${{ contains(toJson(github.event.commits), 'bump-minor') }} #CUSTOMIZE COMMIT MESSAGE TRIGGER HERE
+        V_MAJOR: ${{ steps.next-ver.outputs.v_major }}
+        V_MINOR: ${{ steps.next-ver.outputs.v_minor }}
+        V_PATCH: ${{ steps.next-ver.outputs.v_patch }}
+        SHA: ${{ github.sha }}
