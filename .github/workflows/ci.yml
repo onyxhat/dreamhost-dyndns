@@ -39,7 +39,9 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
-        path: bin/*
+        path: |
+          bin/*
+          config.json
 
   release:
     runs-on: ubuntu-latest
