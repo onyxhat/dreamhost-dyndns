@@ -1,8 +1,8 @@
 $MyPath = Split-Path $MyInvocation.MyCommand.Definition
 $MyProject = $(Get-Item $MyPath).BaseName
 
-if (!(Test-Path $MyPath\bin)) { New-Item -Path $MyPath\bin -ItemType Directory | Out-Null }
-if (!$env:GOPATH) { $env:GOPATH = New-New-Item -Path C:\Go-work\ -ItemType Directory -Force | Select-Object -ExpandProperty FullName }
+if (!(Test-Path $MyPath\bin)) { New-Item -Path $MyPath/bin -ItemType Directory | Out-Null }
+if (!$env:GOPATH) { $env:GOPATH = New-Item -Path $MyPath/go-work/ -ItemType Directory -Force | Select-Object -ExpandProperty FullName }
 
 $BuildOpts = @{
     "linux" = @("386", "amd64", "arm", "arm64");
@@ -23,7 +23,7 @@ ForEach ($OS in $BuildOpts.GetEnumerator()) {
 
         Try {
             Write-Host "Building: $env:GOOS ($env:GOARCH)"
-            & go build -ldflags="-s -w" -o "$MyPath\bin\$MyProject-$env:GOOS-$env:GOARCH$Ext"
+            & go build -ldflags="-s -w" -o "$MyPath/bin/$MyProject-$env:GOOS-$env:GOARCH$Ext"
         }
 
         Catch {
