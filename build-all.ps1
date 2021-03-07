@@ -2,11 +2,11 @@ $MyPath = Split-Path $MyInvocation.MyCommand.Definition
 $MyProject = $(Get-Item $MyPath).BaseName
 
 if (!(Test-Path $MyPath\bin)) { New-Item -Path $MyPath/bin -ItemType Directory | Out-Null }
-if (!$env:GOPATH) { $env:GOPATH = New-Item -Path $MyPath/go-work/ -ItemType Directory -Force | Select-Object -ExpandProperty FullName }
+#if (!$env:GOPATH) { $env:GOPATH = New-Item -Path $MyPath/go-work/ -ItemType Directory -Force | Select-Object -ExpandProperty FullName }
 
 $BuildOpts = @{
     "linux" = @("386", "amd64", "arm", "arm64");
-    "darwin" = @("386", "amd64");
+    "darwin" = @("amd64");
     "windows" = @("386", "amd64")
 }
 
