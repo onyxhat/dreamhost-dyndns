@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/kardianos/osext"
 	"github.com/kardianos/service"
 	config "github.com/spf13/viper"
