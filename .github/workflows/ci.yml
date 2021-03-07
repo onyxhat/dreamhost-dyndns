@@ -5,8 +5,12 @@ on:
     branches: [ main ]
   pull_request:
 
-jobs:
+env:
+  GO_VERSION: 1.15
+  BUMP_MAJOR: 'bump-major'
+  BUMP_MINOR: 'bump-minor'
 
+jobs:
   build:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
@@ -17,15 +21,25 @@ jobs:
         fetch-depth: 0
     
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
-    
+
+    - name: Override ENV
+      uses: c-py/action-dotenv-to-setenv@v3
+      continue-on-error: true
+
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: ${{ env.GO_VERSION }}
 
     - name: Build
       run: ./build-all.ps1
       shell: pwsh
+
+    - name: Upload Artifact(s)
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
+        path: bin/*
 
   release:
     runs-on: ubuntu-latest
@@ -33,6 +47,16 @@ jobs:
     
     steps:
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
+    
+    - name: Override ENV
+      uses: c-py/action-dotenv-to-setenv@v3
+      continue-on-error: true
+
+    - name: Download Artifact(s)
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
+        path: bin
 
     - name: Get Previous Tag
       id: previous-tag
@@ -41,17 +65,16 @@ jobs:
 
     - name: Catch Tag
       id: catch-tag
+      shell: pwsh
       run: |
-        if ($env:FAILED -eq $true) {
+        if ([string]::IsNullOrWhiteSpace($env:VERSION)) {
           Write-Host "Unable to find existing tags: Setting initial to [v0.0.0]"
           return "::set-output name=tag::v0.0.0"
         } else {
           Write-Host "Existing tag found: using [${env:VERSION}]"
           return "::set-output name=tag::${env:VERSION}"
         }
-      shell: pwsh
       env:
-        FAILED: steps.previous-tag.outcome == failure()
         VERSION: ${{ steps.previous-tag.outputs.tag }}
 
     - name: Next SemVer
@@ -60,22 +83,30 @@ jobs:
       with:
         version: ${{ steps.catch-tag.outputs.tag }}
 
+    - name: Set User Configuration
+      uses: oleksiyrudenko/gha-git-credentials@v2
+      with:
+        name: 'GitHub Actions'
+        email: 'github-bot@sleepnumber.com'
+        actor: 'GitHub Actions'
+        token: '${{ secrets.GITHUB_TOKEN }}'
+
     - name: Select SemVer
       id: select-ver
+      shell: pwsh
       run: |
         if ($env:IS_MAJOR -eq $true) {
           Write-Host "Bump MAJOR octet: [${env:V_MAJOR}]"
-          $output = "::set-output name=tag::${env:V_MAJOR}"
+          $output = $env:V_MAJOR
         } elseif ($env:IS_MINOR -eq $true) {
           Write-Host "Bump MINOR octet: [${env:V_MINOR}]"
-          $output = "::set-output name=tag::${env:V_MINOR}"
+          $output = $env:V_MINOR
         } else {
           Write-Host "Bump PATCH octet: [${env:V_PATCH}]"
-          $output = "::set-output name=tag::${env:V_PATCH}"
+          $output = $env:V_PATCH
         }
-        
-        return $output
-      shell: pwsh
+        git tag -a $output -m $env:SHA | Out-Null
+        return "::set-output name=tag::${output}"
       env:
         IS_MAJOR: ${{ contains(toJson(github.event.commits), 'bump-major') }} #CUSTOMIZE COMMIT MESSAGE TRIGGER HERE
         IS_MINOR: ${{ contains(toJson(github.event.commits), 'bump-minor') }} #CUSTOMIZE COMMIT MESSAGE TRIGGER HERE
@@ -83,3 +114,13 @@ jobs:
         V_MINOR: ${{ steps.next-ver.outputs.v_minor }}
         V_PATCH: ${{ steps.next-ver.outputs.v_patch }}
         SHA: ${{ github.sha }}
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "bin/*"
+        name: "${{ env.CI_REPOSITORY_NAME_SLUG }}-${{ steps.select-ver.outputs.tag }}-rc"
+        commit: ${{ github.sha }}
+        prerelease: true
+        tag: "${{ steps.select-ver.outputs.tag }}"
+        token: ${{ secrets.GITHUB_TOKEN }}
