@@ -58,7 +58,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
-        path: bin
+        path: ./
 
     - name: Get Previous Tag
       id: previous-tag
@@ -89,7 +89,7 @@ jobs:
       uses: oleksiyrudenko/gha-git-credentials@v2
       with:
         name: 'GitHub Actions'
-        email: 'github-bot@sleepnumber.com'
+        email: 'github-bot@github.com'
         actor: 'GitHub Actions'
         token: '${{ secrets.GITHUB_TOKEN }}'
 
@@ -110,8 +110,8 @@ jobs:
         git tag -a $output -m $env:SHA | Out-Null
         return "::set-output name=tag::${output}"
       env:
-        IS_MAJOR: ${{ contains(toJson(github.event.commits), 'bump-major') }} #CUSTOMIZE COMMIT MESSAGE TRIGGER HERE
-        IS_MINOR: ${{ contains(toJson(github.event.commits), 'bump-minor') }} #CUSTOMIZE COMMIT MESSAGE TRIGGER HERE
+        IS_MAJOR: ${{ contains(toJson(github.event.commits), env.BUMP_MAJOR) }}
+        IS_MINOR: ${{ contains(toJson(github.event.commits), env.BUMP_MINOR) }}
         V_MAJOR: ${{ steps.next-ver.outputs.v_major }}
         V_MINOR: ${{ steps.next-ver.outputs.v_minor }}
         V_PATCH: ${{ steps.next-ver.outputs.v_patch }}
