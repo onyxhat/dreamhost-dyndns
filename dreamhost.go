@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // dhRequest api as described here: http://bit.ly/2MHs8UU

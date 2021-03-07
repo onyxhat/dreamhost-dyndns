@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/rdegges/go-ipify"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 func getCurrentIP() string {
