@@ -23,6 +23,7 @@ jobs:
     
     - name: Get Release Asset(s)
       uses: blauqs/actions-download-asset@v1.1
+      with:
         repo: ${{ github.repository }}
         version: ${{ env.CI_ACTION_REF_NAME }}
         file: ${{ env.OUT_BINARY }}
