@@ -1,9 +1,11 @@
 name: Release Docker Image
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  release:
+    types:
+      - published
+      - prereleased
+      - released
 
 jobs:
   containerize:
