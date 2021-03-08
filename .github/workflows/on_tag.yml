@@ -1,10 +1,7 @@
-name: Build Go
+name: Release Docker Image
 
 on:
   release:
-    types:
-      - prereleased
-      - released
 
 jobs:
   containerize:
