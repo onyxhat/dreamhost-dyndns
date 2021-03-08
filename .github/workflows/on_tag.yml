@@ -1,7 +1,9 @@
 name: Release Docker Image
 
 on:
-  release:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   containerize:
@@ -23,7 +25,7 @@ jobs:
       with:
         repo: ${{ github.repository }}
         version: ${{ env.CI_ACTION_REF_NAME }}
-        file: ${{ env.OUT_BINARY }}
+        file: ${{ env.DOCKER_BINARY }}
         out: ${{ env.BINARY_OUTDIR }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
