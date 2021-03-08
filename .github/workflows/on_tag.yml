@@ -1,0 +1,58 @@
+name: Build Go
+
+on:
+  release:
+    types:
+      - prereleased
+      - released
+
+jobs:
+  containerize:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: FranzDiebold/github-env-vars-action@v2.1.0
+    
+    - name: Override ENV
+      uses: c-py/action-dotenv-to-setenv@v3
+      continue-on-error: true
+
+    - name: Download Artifact(s)
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
+        path: ./
+
+    - name: Docker Login
+      id: login
+      uses: Azure/docker-login@v1
+      with:
+        username: ${{ secrets.REGISTRY_USER }}
+        password: ${{ secrets.REGISTRY_SECRET }}
+
+    - name: Get Release Info
+      id: my-release
+      uses: pozetroninc/github-action-get-latest-release@v0.5.0
+      with:
+        repository: ${{ github.repository }}
+
+    - name: Build Docker image
+      id: build
+      run: |
+        docker build . --no-cache --file Dockerfile --tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT
+        docker tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:$RELEASE_V
+        docker tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:latest
+      env:
+        RELEASE_V: ${{ steps.my-release.outputs.release }}
+
+    - name: Image Scanning
+      id: scan
+      uses: Azure/container-scan@v0
+      with:
+        image-name: ${{ env.CI_REPOSITORY_NAME_SLUG }}:${{ env.CI_SHA_SHORT }}
+
+    - name: Push Docker image
+      id: push
+      run: |
+        docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:$RELEASE_V
+        docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:latest
