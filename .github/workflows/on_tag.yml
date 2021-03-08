@@ -24,15 +24,12 @@ jobs:
       continue-on-error: true
     
     - name: Get Release Asset(s)
-      uses: blauqs/actions-download-asset@v1.1
+      uses: fabriciobastian/download-release-asset-action@v1.0.6
       with:
-        repo: ${{ github.repository }}
+        repository: ${{ github.repository }}
         version: ${{ env.CI_ACTION_REF_NAME }}
         file: ${{ env.DOCKER_BINARY }}
         out: ${{ env.BINARY_OUTDIR }}
-        token: ${{ secrets.GITHUB_TOKEN }}
-        prefix: ''
-        mode: 550
 
     - name: Docker Login
       id: login
