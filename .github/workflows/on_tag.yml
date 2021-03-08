@@ -3,8 +3,6 @@ name: Release Docker Image
 on:
   release:
     types:
-      - created
-      - published
       - prereleased
       - released
 
