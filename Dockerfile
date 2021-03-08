@@ -2,7 +2,7 @@
 FROM gruebel/upx:latest as upx
 
 COPY ./bin/dreamhost-dyndns-linux-amd64 /dreamhost-dyndns.org
-RUN chmod +x ./bin/dreamhost-dyndns-linux-amd64 && \
+RUN chmod +x /dreamhost-dyndns.org && \
     upx --best --lzma -o /dreamhost-dyndns /dreamhost-dyndns.org
 
 # Store the app
