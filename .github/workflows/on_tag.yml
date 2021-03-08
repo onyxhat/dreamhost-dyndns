@@ -31,6 +31,8 @@ jobs:
         file: ${{ env.DOCKER_BINARY }}
         out: ${{ env.BINARY_OUTDIR }}
         token: ${{ secrets.GITHUB_TOKEN }}
+        prefix: ''
+        mode: 550
 
     - name: Docker Login
       id: login
