@@ -11,17 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.sha }}
+
     - uses: FranzDiebold/github-env-vars-action@v2.1.0
     
     - name: Override ENV
       uses: c-py/action-dotenv-to-setenv@v3
       continue-on-error: true
-
-    - name: Download Artifact(s)
-      uses: actions/download-artifact@v2
-      with:
-        name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
-        path: ./
+    
+    - name: Get Release Asset(s)
+      uses: blauqs/actions-download-asset@v1.1
+        repo: ${{ github.repository }}
+        version: ${{ env.CI_ACTION_REF_NAME }}
+        file: ${{ env.OUT_BINARY }}
+        out: ${{ env.BINARY_OUTDIR }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Docker Login
       id: login
@@ -29,12 +35,6 @@ jobs:
       with:
         username: ${{ secrets.REGISTRY_USER }}
         password: ${{ secrets.REGISTRY_SECRET }}
-
-    - name: Get Release Info
-      id: my-release
-      uses: pozetroninc/github-action-get-latest-release@v0.5.0
-      with:
-        repository: ${{ github.repository }}
 
     - name: Build Docker image
       id: build

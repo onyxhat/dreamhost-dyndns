@@ -126,6 +126,5 @@ jobs:
         artifacts: "bin/*"
         name: "${{ env.CI_REPOSITORY_NAME_SLUG }}-${{ steps.select-ver.outputs.tag }}-rc"
         commit: ${{ github.sha }}
-        prerelease: true
         tag: "${{ steps.select-ver.outputs.tag }}"
         token: ${{ secrets.GITHUB_TOKEN }}
