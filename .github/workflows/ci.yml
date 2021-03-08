@@ -124,7 +124,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "bin/*"
-        name: "${{ env.CI_REPOSITORY_NAME_SLUG }}-${{ steps.select-ver.outputs.tag }}-rc"
+        name: "${{ env.CI_REPOSITORY_NAME_SLUG }}-${{ steps.select-ver.outputs.tag }}"
         commit: ${{ github.sha }}
         tag: "${{ steps.select-ver.outputs.tag }}"
         token: ${{ secrets.GITHUB_TOKEN }}
