@@ -34,8 +34,8 @@ jobs:
       shell: pwsh
       run: |
         $output = ($(& go tool dist list) -match '^(darwin|linux|windows)/(arm|arm64|386|amd64)$') -join ','
-        Write-Host "::debug::Build Targets: ${output}"
-        return "::set-output name=targets::${output}"
+        Write-Output "::debug::${output}"
+        Write-Output "::set-output name=targets::${output}"
 
     - name: Build with xgo
       uses: crazy-max/ghaction-xgo@v1.5.0
@@ -45,9 +45,7 @@ jobs:
         dest: ${{ env.BINARY_OUTDIR }}
         prefix: ${{ env.CI_REPOSITORY_NAME_SLUG }}
         targets: ${{ steps.get-targets.output.targets }}
-        v: true
         ldflags: -s -w
-        buildmode: default
 
     - name: Upload Artifact(s)
       if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
