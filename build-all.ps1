@@ -1,7 +1,8 @@
 $MyPath = Split-Path $MyInvocation.MyCommand.Definition
-$MyProject = if (!$env:CI_REPOSITORY_NAME_SLUG) { $env:CI_REPOSITORY_NAME_SLUG } else { $(Get-Item $MyPath).BaseName }
+$BinDir = if (!$env:BINARY_OUTDIR) { "bin" } else { $env:BINARY_OUTDIR }
+$MyProject = if (!$env:CI_REPOSITORY_NAME_SLUG) { $(Get-Item $MyPath).BaseName } else { $env:CI_REPOSITORY_NAME_SLUG }
 
-if (!(Test-Path $MyPath/bin)) { New-Item -Path $MyPath/bin -ItemType Directory | Out-Null }
+if (!(Test-Path $MyPath/$BinDir)) { New-Item -Path $MyPath/$BinDir -ItemType Directory | Out-Null }
 
 Push-Location $MyPath
 
@@ -16,7 +17,7 @@ ForEach ($g in $(& go tool dist list)) {
 
         Try {
             Write-Host "Building: ${env:GOOS} (${env:GOARCH})"
-            & go build -ldflags="-s -w" -o "${MyPath}/bin/${MyProject}-${env:GOOS}-${env:GOARCH}${Ext}"
+            & go build -ldflags="-s -w" -o "${MyPath}/${BinDir}/${MyProject}-${env:GOOS}-${env:GOARCH}${Ext}"
         }
 
         Catch {

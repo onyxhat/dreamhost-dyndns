@@ -7,8 +7,9 @@ on:
 
 env:
   GO_VERSION: 1.15
-  BUMP_MAJOR: 'bump-major'
-  BUMP_MINOR: 'bump-minor'
+  BUMP_MAJOR: bump-major
+  BUMP_MINOR: bump-minor
+  BINARY_OUTDIR: bin
 
 jobs:
   build:
@@ -28,9 +29,24 @@ jobs:
       with:
         go-version: ${{ env.GO_VERSION }}
 
-    - name: Build
-      run: ./build-all.ps1
+    - name: Get Build Targets
+      id: get-targets
       shell: pwsh
+      run: |
+        $output = ($(& go tool dist list) -match '^(darwin|linux|windows)/(arm|arm64|386|amd64)$') -join ','
+        return "::set-output name=targets::${output}"
+
+    - name: Build with xgo
+      uses: crazy-max/ghaction-xgo@v1.5.0
+      with:
+        xgo_version: latest
+        go_version: ${{ env.GO_VERSION }}
+        dest: ${{ env.BINARY_OUTDIR }}
+        prefix: ${{ env.CI_REPOSITORY_NAME_SLUG }}
+        targets: ${{ steps.get-targets.output.targets }}
+        v: true
+        ldflags: -s -w
+        buildmode: default
 
     - name: Upload Artifact(s)
       if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
@@ -38,7 +54,7 @@ jobs:
       with:
         name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
         path: |
-          bin/*
+          ${{ env.BINARY_OUTDIR }}/*
           config.json
 
   release:
