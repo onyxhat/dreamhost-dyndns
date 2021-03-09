@@ -40,7 +40,7 @@ jobs:
       uses: crazy-max/ghaction-xgo@v1.5.0
       with:
         xgo_version: latest
-        go_version: ${{ env.GO_VERSION }}
+        go_version: ${{ env.GO_VERSION }}.x
         dest: ${{ env.BINARY_OUTDIR }}
         prefix: ${{ env.CI_REPOSITORY_NAME_SLUG }}
         targets: ${{ steps.get-targets.output.targets }}
