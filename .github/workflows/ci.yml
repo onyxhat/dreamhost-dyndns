@@ -44,7 +44,7 @@ jobs:
       uses: gacts/upx@v1.0.1
       with:
         dir: ${{ env.BINARY_OUTDIR }}
-        upx_args: --best
+        upx_args: -8
 
     - name: Upload Artifact(s)
       if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
