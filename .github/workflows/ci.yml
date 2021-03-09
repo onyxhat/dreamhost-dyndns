@@ -34,6 +34,7 @@ jobs:
       shell: pwsh
       run: |
         $output = ($(& go tool dist list) -match '^(darwin|linux|windows)/(arm|arm64|386|amd64)$') -join ','
+        Write-Host "::debug::Build Targets: ${output}"
         return "::set-output name=targets::${output}"
 
     - name: Build with xgo
