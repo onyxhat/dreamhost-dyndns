@@ -129,7 +129,7 @@ jobs:
     - name: UPX Compression
       uses: gacts/upx@v1.0.1
       with:
-        dir: ${{ env.BINARY_OUTDIR }}
+        dir: ./${{ env.BINARY_OUTDIR }}/
         upx_args: -8
 
     - name: Create Release
