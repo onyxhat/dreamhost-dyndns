@@ -40,10 +40,8 @@ jobs:
       id: build
       run: |
         docker build . --no-cache --file Dockerfile --tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT
-        docker tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:$RELEASE_V
+        docker tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:${CI_REF_NAME/v/}
         docker tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:latest
-      env:
-        RELEASE_V: ${{ steps.my-release.outputs.release }}
 
     - name: Image Scanning
       id: scan
