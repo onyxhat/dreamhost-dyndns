@@ -126,6 +126,11 @@ jobs:
         V_PATCH: ${{ steps.next-ver.outputs.v_patch }}
         SHA: ${{ github.sha }}
 
+    - name: Test Paths
+      run: |
+        ls -l ./
+        ls -l ./bin/
+
     - name: UPX Compression
       uses: gacts/upx@v1.0.1
       with:
