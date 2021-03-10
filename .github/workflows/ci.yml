@@ -40,20 +40,12 @@ jobs:
         targets: ${{ env.BUILD_ARCH }}
         ldflags: -s -w
 
-    - name: UPX Compression
-      uses: gacts/upx@v1.0.1
-      with:
-        dir: ${{ env.BINARY_OUTDIR }}
-        upx_args: -8
-
     - name: Upload Artifact(s)
       if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
       uses: actions/upload-artifact@v2
       with:
         name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
-        path: |
-          ${{ env.BINARY_OUTDIR }}/*
-          config.json
+        path: ${{ env.BINARY_OUTDIR }}/*
 
   release:
     needs: build
@@ -75,7 +67,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: ${{ env.CI_REPOSITORY_NAME_SLUG }}
-        path: ./
+        path: ${{ env.BINARY_OUTDIR }}
 
     - name: Get Previous Tag
       id: previous-tag
@@ -133,6 +125,12 @@ jobs:
         V_MINOR: ${{ steps.next-ver.outputs.v_minor }}
         V_PATCH: ${{ steps.next-ver.outputs.v_patch }}
         SHA: ${{ github.sha }}
+
+    - name: UPX Compression
+      uses: gacts/upx@v1.0.1
+      with:
+        dir: ${{ env.BINARY_OUTDIR }}
+        upx_args: -8
 
     - name: Create Release
       uses: ncipollo/release-action@v1

@@ -6,6 +6,9 @@ on:
       - prereleased
       - released
 
+env:
+  BINARY_OUTDIR: bin
+
 jobs:
   containerize:
     runs-on: ubuntu-latest
@@ -52,5 +55,5 @@ jobs:
     - name: Push Docker image
       id: push
       run: |
-        docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:$RELEASE_V
+        docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:${CI_REF_NAME/v/}
         docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:latest
