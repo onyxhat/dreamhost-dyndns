@@ -4,7 +4,7 @@ on:
   release:
     types:
       - prereleased
-      - released
+      #- released
 
 env:
   BINARY_OUTDIR: bin
@@ -57,3 +57,13 @@ jobs:
       run: |
         docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:${CI_REF_NAME/v/}
         docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:latest
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        name: ${{ env.CI_REPOSITORY_NAME_SLUG }}-${{ env.CI_REF_NAME }}
+        commit: ${{ github.sha }}
+        tag: ${{ env.CI_REF_NAME }}
+        token: ${{ secrets.ONYXHAT_PAT }}
+        prerelease: false
+        replacesArtifacts: false

@@ -137,11 +137,12 @@ jobs:
         dir: ./${{ env.BINARY_OUTDIR }}/
         upx_args: -8
 
-    - name: Create Release
+    - name: Create PreRelease
       uses: ncipollo/release-action@v1
       with:
         artifacts: ${{ env.BINARY_OUTDIR }}/*
-        name: ${{ env.CI_REPOSITORY_NAME_SLUG }}-${{ steps.select-ver.outputs.tag }}
+        name: ${{ env.CI_REPOSITORY_NAME_SLUG }}-${{ steps.select-ver.outputs.tag }}-rc
         commit: ${{ github.sha }}
         tag: ${{ steps.select-ver.outputs.tag }}
         token: ${{ secrets.ONYXHAT_PAT }}
+        prerelease: true
