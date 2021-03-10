@@ -1,3 +1,7 @@
-FROM gcr.io/distroless/base
-COPY ./bin/dreamhost-dyndns-linux-amd64 /app
-ENTRYPOINT [ "/app" ]
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY ./bin/dreamhost-dyndns-linux-amd64 /dreamhost-dyndns
+
+ENTRYPOINT [ "/app/dreamhost-dyndns" ]
