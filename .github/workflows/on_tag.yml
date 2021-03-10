@@ -66,4 +66,4 @@ jobs:
         tag: ${{ env.CI_REF_NAME }}
         token: ${{ secrets.ONYXHAT_PAT }}
         prerelease: false
-        replacesArtifacts: false
+        allowUpdates: true
