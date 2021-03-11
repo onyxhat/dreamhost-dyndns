@@ -10,6 +10,7 @@ env:
   BUMP_MAJOR: bump-major
   BUMP_MINOR: bump-minor
   ENABLE_COMPRESSION: false
+  SRC_DIR: src
   BINARY_OUTDIR: bin
 
 jobs:
@@ -33,16 +34,6 @@ jobs:
     - name: Build
       shell: pwsh
       run: ./build-all.ps1
-
-    #- name: Build with xgo
-    #  uses: crazy-max/ghaction-xgo@v1.5.0
-    #  with:
-    #    xgo_version: latest
-    #    go_version: ${{ env.GO_VERSION }}.x
-    #    dest: ${{ env.BINARY_OUTDIR }}
-    #    prefix: ${{ env.CI_REPOSITORY_NAME_SLUG }}
-    #    targets: ${{ env.BUILD_ARCH }}
-    #    ldflags: -s -w
 
     - name: Upload Artifact(s)
       if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}

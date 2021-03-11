@@ -1,11 +1,12 @@
 $MyPath = Split-Path $MyInvocation.MyCommand.Definition
+$SrcDir = if (!$env:SRC_DIR) { "src" } else { $env:SRC_DIR }
 $BinDir = if (!$env:BINARY_OUTDIR) { "bin" } else { $env:BINARY_OUTDIR }
 $MyProject = if (!$env:CI_REPOSITORY_NAME_SLUG) { $(Get-Item $MyPath).BaseName } else { $env:CI_REPOSITORY_NAME_SLUG }
 $BuildArch = if (!$env:BUILD_ARCH) { ((& go tool dist list) -match '^(darwin|linux|windows)/(arm|arm64|386|amd64)$') -join ',' } else { $env:BUILD_ARCH }
 
 if (!(Test-Path $MyPath/$BinDir)) { New-Item -Path $MyPath/$BinDir -ItemType Directory | Out-Null }
 
-Push-Location $MyPath
+Push-Location $MyPath/$SrcDir
 
 & go get .
 
