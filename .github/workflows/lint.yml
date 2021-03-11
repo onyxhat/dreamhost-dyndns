@@ -3,6 +3,9 @@ name: Lint Go
 on:
   pull_request:
 
+env:
+  SRC_DIR: src
+
 jobs:
   lint:
     ### Multiple OS linting strategy
@@ -15,12 +18,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Override ENV
+      uses: c-py/action-dotenv-to-setenv@v3
+      continue-on-error: true
+
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v2
       with:
         version: v1.38
-        # Optional: working directory, useful for monorepos
-        # working-directory: somedir
+        working-directory: ${{ env.SRC_DIR }}
 
         # Optional: golangci-lint command line arguments.
         # args: --issues-exit-code=0
