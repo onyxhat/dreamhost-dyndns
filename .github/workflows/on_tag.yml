@@ -32,6 +32,9 @@ jobs:
         file: ${{ env.CI_REPOSITORY_NAME_SLUG }}-linux-386
         out: ${{ env.BINARY_OUTDIR }}
 
+    - name: Fix Permissions
+      run: chmod -R +x ./$BINARY_OUTDIR/
+
     - name: Docker Login
       id: login
       uses: Azure/docker-login@v1
