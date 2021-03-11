@@ -10,6 +10,7 @@ env:
   BUMP_MAJOR: bump-major
   BUMP_MINOR: bump-minor
   ENABLE_COMPRESSION: false
+  SRC_DIR: src
   BINARY_OUTDIR: bin
 
 jobs:
