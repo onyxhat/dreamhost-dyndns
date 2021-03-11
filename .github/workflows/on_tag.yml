@@ -32,9 +32,6 @@ jobs:
         file: ${{ env.CI_REPOSITORY_NAME_SLUG }}-linux-386
         out: ${{ env.BINARY_OUTDIR }}
 
-    - name: Fix Permissions
-      run: chmod -R +x ./$BINARY_OUTDIR/
-
     - name: Docker Login
       id: login
       uses: Azure/docker-login@v1
@@ -45,9 +42,9 @@ jobs:
     - name: Build Docker image
       id: build
       run: |
-        docker build . --no-cache --file Dockerfile --tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT
-        docker tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:${CI_REF_NAME/v/}
-        docker tag $CI_REPOSITORY_NAME_SLUG:$CI_SHA_SHORT $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:latest
+        docker build . --no-cache --file Dockerfile --tag ${CI_REPOSITORY_NAME_SLUG}:${CI_SHA_SHORT} --build-arg DOCKER_BIN=${CI_REPOSITORY_NAME_SLUG}-linux-386
+        docker tag ${CI_REPOSITORY_NAME_SLUG}:${CI_SHA_SHORT} ${CI_REPOSITORY_OWNER_SLUG}/${CI_REPOSITORY_NAME_SLUG}:${CI_REF_NAME/v/}
+        docker tag ${CI_REPOSITORY_NAME_SLUG}:${CI_SHA_SHORT} ${CI_REPOSITORY_OWNER_SLUG}/${CI_REPOSITORY_NAME_SLUG}:latest
 
     - name: Image Scanning
       id: scan
@@ -58,8 +55,8 @@ jobs:
     - name: Push Docker image
       id: push
       run: |
-        docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:${CI_REF_NAME/v/}
-        docker push $CI_REPOSITORY_OWNER_SLUG/$CI_REPOSITORY_NAME_SLUG:latest
+        docker push ${CI_REPOSITORY_OWNER_SLUG}/${CI_REPOSITORY_NAME_SLUG}:${CI_REF_NAME/v/}
+        docker push ${CI_REPOSITORY_OWNER_SLUG}/${CI_REPOSITORY_NAME_SLUG}:latest
 
     - name: Create Release
       uses: ncipollo/release-action@v1
