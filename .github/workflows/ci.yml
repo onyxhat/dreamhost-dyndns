@@ -137,6 +137,9 @@ jobs:
         dir: ./${{ env.BINARY_OUTDIR }}/
         upx_args: -8
 
+    - name: Fix Permissions
+      run: chmod -R +x ./$BINARY_OUTDIR/
+
     - name: Create PreRelease
       uses: ncipollo/release-action@v1
       with:
