@@ -1,6 +1,5 @@
 FROM alpine:latest
-
-COPY ./bin/dreamhost-dyndns-linux-amd64 /app/dreamhost-dyndns
-RUN chmod 770 /app/dreamhost-dyndns
-
+LABEL MAINTAINER="onyxhat"
+LABEL REPO="https://github.com/onyxhat/dreamhost-dyndns"
+COPY ./bin/dreamhost-dyndns-linux-386 /app/dreamhost-dyndns
 CMD [ "/app/dreamhost-dyndns" ]
