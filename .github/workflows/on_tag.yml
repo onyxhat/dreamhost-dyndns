@@ -67,3 +67,11 @@ jobs:
         token: ${{ secrets.ONYXHAT_PAT }}
         prerelease: false
         allowUpdates: true
+
+    - name: Rollback Release
+      uses: author/action-rollback@1.0.0
+      if: failure()
+      with:
+        tag: ${{ env.CI_REF_NAME }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.ONYXHAT_PAT }}
