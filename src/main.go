@@ -7,7 +7,6 @@ import (
 	"github.com/kardianos/osext"
 	"github.com/kardianos/service"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	config "github.com/spf13/viper"
 )
 
@@ -27,7 +26,7 @@ func (p *program) Start(s service.Service) error {
 	err := config.ReadInConfig()
 	if err != nil {
 		switch err.(type) {
-		case viper.ConfigFileNotFoundError:
+		case config.ConfigFileNotFoundError:
 			log.Warnf("No Config file found, loaded config from Environment - Default path %s", folderPath)
 		default:
 			log.Fatalf("Error when Fetching Configuration - %s", err)
