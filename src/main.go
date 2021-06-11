@@ -1,30 +1,38 @@
 package main
 
 import (
+	"path/filepath"
 	"time"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/kardianos/osext"
 	"github.com/kardianos/service"
+	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	config "github.com/spf13/viper"
 )
 
 type program struct{}
 
 func (p *program) Start(s service.Service) error {
-	folderPath, err := osext.ExecutableFolder()
-	if err != nil {
-		log.Error(err)
-	} else {
-		config.SetConfigName("config")
-		config.AddConfigPath(folderPath)
-		config.ReadInConfig()
-	}
+	execPath, _ := osext.ExecutableFolder()
+	folderPath := filepath.Join(execPath, "config")
 
+	config.AddConfigPath(folderPath)
 	config.SetEnvPrefix("dh")
+	config.AllowEmptyEnv(true)
 	config.AutomaticEnv()
 
 	config.SetDefault("CheckInterval", 3600)
+
+	err := config.ReadInConfig()
+	if err != nil {
+		switch err.(type) {
+		case viper.ConfigFileNotFoundError:
+			log.Warnf("No Config file found, loaded config from Environment - Default path %s", folderPath)
+		default:
+			log.Fatalf("Error when Fetching Configuration - %s", err)
+		}
+	}
 
 	go p.run()
 	return nil
